@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MyCarbons - CO2 Emission Monitoring & MarineRadar Platform</title>
+  <meta name="description" content="Leading the way in maritime decarbonization. Transform complex emission data into actionable strategies, ensuring compliance with IMO-DCS & EU-MRV.">
+  
+  <!-- Environment Configuration for Decoupled Frontend -->
+  <script>
+    window.ENV = window.ENV || {
+      // Set to API URL (e.g., 'http://localhost:3000') when running frontend as standalone app
+      API_BASE_URL: ''
+    };
+  </script>
+
+  <!-- Favicon & Stylesheets -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2322C55E'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z'/></svg>">
+  <link rel="stylesheet" href="styles.css?v=4.0">
+</head>
+<body>
+
+  <!-- Header Navigation -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="brand-logo" id="logo-link" title="MyCarbons Marine Radar Home">
+        <img src="logo.svg" alt="MyCarbons Logo" class="header-official-logo">
+        <span class="radar-brand-badge">Marine Radar</span>
+      </a>
+
+      <div class="header-actions" id="header-user-status-container" style="display: flex; align-items: center; gap: 0.6rem;">
+        <button class="btn-docs" id="btn-open-login-modal" onclick="openLoginFleetModal()" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border-color: rgba(4, 120, 87, 0.4); cursor: pointer; display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.45rem 0.9rem; border-radius: var(--radius-sm); font-size: 0.85rem; font-weight: 600; text-decoration: none;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          Login / My Fleet
+        </button>
+        <a href="/api-docs" target="_blank" class="btn-docs" id="swagger-docs-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          API Docs (Swagger)
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Portal Layout -->
+  <main class="container">
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-header">
+        <!-- Official Compliant Pill Badge -->
+        <div class="compliant-pill">
+          <span class="pill-dot"></span>
+          <span>IMO-DCS & EU-MRV COMPLIANT</span>
+        </div>
+        
+        <h2 class="hero-title">
+          Perfect Solution <span class="highlight">Partner</span>
+        </h2>
+        <p class="hero-subtitle">
+          Leading the way in maritime decarbonization. We transform complex emission data into actionable strategies, ensuring your fleet remains compliant with <strong>IMO-DCS & EU-MRV</strong> while maximizing operational efficiency.
+        </p>
+      </div>
+
+      <!-- Hero KPI Stat Cards (Mapped to Official Company Icons & Colors) -->
+      <div class="stats-grid">
+        <!-- 1. Fleet Status (Green) -->
+        <div class="stat-card" id="stat-card-total">
+          <div class="stat-icon-row">
+            <div class="stat-icon green">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="3" x2="12" y2="6.5"></line>
+                <rect x="7" y="6.5" width="10" height="4.5" rx="1.5"></rect>
+                <path d="M3.5 11L12 8.5L20.5 11"></path>
+                <line x1="12" y1="8.5" x2="12" y2="13.5"></line>
+                <path d="M3.5 11c0 4 3.8 6 8.5 6s8.5-2 8.5-6"></path>
+                <path d="M2.5 19.5c2.5-1.2 5.5-1.2 8 0s5.5 1.2 8 0"></path>
+              </svg>
+            </div>
+            <span class="category-tag carbon">Fleet Status</span>
+          </div>
+          <div class="stat-value" id="stat-total-count">0</div>
+          <div class="stat-label">Total Scraped Articles</div>
+        </div>
+
+        <!-- 2. Live Monitoring (Teal) -->
+        <div class="stat-card" id="stat-card-carbon">
+          <div class="stat-icon-row">
+            <div class="stat-icon teal">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+            </div>
+            <span class="category-tag" style="background: #CCFBF1; color: #0D9488; border-color: rgba(13, 148, 136, 0.3);">Live Monitoring</span>
+          </div>
+          <div class="stat-value" id="stat-carbon-count">0</div>
+          <div class="stat-label">Carbon & Green News</div>
+        </div>
+
+        <!-- 3. Efficiency Plans (Blue) -->
+        <div class="stat-card" id="stat-card-impact">
+          <div class="stat-icon-row">
+            <div class="stat-icon blue">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            </div>
+            <span class="category-tag clean">Efficiency Plans</span>
+          </div>
+          <div class="stat-value" id="stat-avg-impact">0.0</div>
+          <div class="stat-label">Average Impact Score</div>
+        </div>
+
+        <!-- 4. Secure Compliance (Orange) - Clicking Opens Newsletter Archive -->
+        <div class="stat-card clickable-card" id="stat-card-newsletter" title="Click to View Digest Archive">
+          <div class="stat-icon-row">
+            <div class="stat-icon orange">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+            <span class="category-tag fuel">Secure Compliance</span>
+          </div>
+          <div class="stat-value" id="stat-newsletter-count">0</div>
+          <div class="stat-label">Generated Special Digests (Open Archive ➔)</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Control Bar -->
+    <section class="control-bar">
+      <div class="control-top-row">
+        <!-- Live Search & Vessel Filter -->
+        <div class="search-input-wrap" style="display: flex; gap: 0.6rem; flex-wrap: wrap; flex: 1; min-width: 280px; position: relative;">
+          <div style="flex: 1; min-width: 220px; position: relative;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="search-input" class="search-input" placeholder="Search headline, keyword, or port...">
+          </div>
+          <select id="vessel-select-dropdown" style="background: var(--bg-card); color: var(--text-heading); border: 1px solid var(--border-card); padding: 0.65rem 0.85rem; border-radius: var(--radius-md); font-size: 0.88rem; font-weight: 600; cursor: pointer; min-width: 200px;">
+            <option value="all">⚓ All Fleet Vessels Filter</option>
+            <!-- Dynamic vessels populated via app.js -->
+          </select>
+        </div>
+
+        <!-- Action Trigger Buttons -->
+        <div class="action-buttons">
+          <button class="btn-action" id="btn-run-pipeline" style="background: linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%); color: white; border: 1px solid rgba(124, 58, 237, 0.4);" title="Run 4-Stage Pipeline: Ingest ➔ Deep Scrape ➔ Vessel Match ➔ Regulation Tagging">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            Run Full Pipeline
+          </button>
+          <button class="btn-action btn-rss" id="btn-scrape-rss">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"></path><path d="M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1"></circle></svg>
+            Scrape RSS Now
+          </button>
+          <button class="btn-action btn-html" id="btn-scrape-html">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            Scrape HTML Web
+          </button>
+          <button class="btn-action btn-deep" id="btn-scrape-deep" style="background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; border: 1px solid rgba(4, 120, 87, 0.4);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 12H7"></path><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+            Deep Scrape Content
+          </button>
+          <button class="btn-action btn-newsletter" id="btn-generate-newsletter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+            Generate Digest
+          </button>
+        </div>
+      </div>
+
+      <!-- Category Filter Tabs -->
+      <div class="category-tabs" id="category-tabs">
+        <button class="tab-btn active" data-category="all">All News</button>
+        <button class="tab-btn" data-category="my-fleet" style="background: #CCFBF1; color: #0D9488; font-weight: 700; border: 1px solid rgba(13, 148, 136, 0.4);">⚓ My Fleet News</button>
+        <button class="tab-btn" data-category="Carbon Emissions">Carbon Emissions</button>
+        <button class="tab-btn" data-category="Alternative Fuels">Alternative Fuels</button>
+        <button class="tab-btn" data-category="Clean Energy">Clean Energy</button>
+        <button class="tab-btn" data-category="Green Ports">Green Ports</button>
+        <button class="tab-btn" data-category="Regulations">Regulations</button>
+      </div>
+    </section>
+
+    <!-- News Grid Container -->
+    <section class="news-grid-section">
+      <div class="section-header-row">
+        <h3 class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+          Live News Feed
+        </h3>
+        <span class="news-count-badge" id="visible-count-badge">Loading articles...</span>
+      </div>
+
+      <div class="news-grid" id="news-grid-container">
+        <!-- Dynamic Content Rendered via app.js -->
+      </div>
+
+      <!-- Pagination Navigation Controls (15 Haber / Sayfa) -->
+      <div id="pagination-controls-container" class="pagination-container" style="display: none;">
+        <!-- Dynamic Pagination Rendered via app.js -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Newsletter Generation Modal -->
+  <div class="modal-backdrop" id="newsletter-modal">
+    <div class="modal-container">
+      <button class="btn-close-modal" id="btn-close-newsletter-modal" title="Close">&times;</button>
+      <div id="newsletter-modal-content">
+        <!-- Dynamic Magazine Cover Content Rendered via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Newsletter Archive Modal -->
+  <div class="modal-backdrop" id="archive-modal">
+    <div class="modal-container modal-lg">
+      <button class="btn-close-modal" id="btn-close-archive-modal" title="Close">&times;</button>
+      <div class="modal-header-title">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--brand-green)" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        <h3>MyCarbons Special Digest Archive</h3>
+      </div>
+      <div id="archive-modal-content">
+        <!-- Dynamic Newsletter Archive Rendered via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- News Detail Modal (Aşama 16) -->
+  <div class="modal-backdrop" id="news-detail-modal">
+    <div class="modal-container modal-lg">
+      <button class="btn-close-modal" id="btn-close-detail-modal" title="Close">&times;</button>
+      <div id="news-detail-modal-content">
+        <!-- Dynamic News Detail Content Rendered via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- User Login & Fleet Management Modal (Aşama 34) -->
+  <div class="modal-backdrop" id="login-fleet-modal">
+    <div class="modal-container modal-lg">
+      <button class="btn-close-modal" id="btn-close-login-modal" title="Close">&times;</button>
+      <div class="modal-header-title" style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.25rem;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0D9488" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <h3 style="margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--text-heading);">User Login & Fleet Management</h3>
+      </div>
+      <div id="login-fleet-modal-content">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Site Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--brand-green)" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path></svg>
+        <span>MyCarbons &copy; 2026 CO2 Emission Monitoring Platform. All rights reserved.</span>
+      </div>
+      <div class="footer-links">
+        <a href="#" id="link-open-archive">Digest Archive</a>
+        <a href="/api-docs" target="_blank">Swagger API</a>
+        <a href="https://github.com/toygucakin/MarineRadar" target="_blank">GitHub Repository</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Client JavaScript Logic -->
+  <script src="app.js?v=19.0" defer></script>
+</body>
+</html>

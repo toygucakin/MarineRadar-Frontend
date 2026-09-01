@@ -1,0 +1,22 @@
+{
+  "name": "marineradar-frontend",
+  "version": "1.0.0",
+  "description": "MyCarbons / MarineRadar Independent Frontend Dashboard",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [
+    "maritime",
+    "decarbonization",
+    "frontend",
+    "vite"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "vite": "^5.4.10"
+  }
+}
