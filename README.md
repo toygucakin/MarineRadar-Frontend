@@ -39,7 +39,7 @@ VITE_API_BASE_URL=http://localhost:3000
 npm run dev
 ```
 
-Dashboard varsayılan olarak `http://localhost:5173` adresinde çalışmaya başlayacaktır.
+Dashboard varsayılan olarak `http://localhost:4000` adresinde çalışmaya başlayacaktır.
 
 ---
 
@@ -48,7 +48,7 @@ Dashboard varsayılan olarak `http://localhost:5173` adresinde çalışmaya baş
 ```bash
 docker-compose up --build
 ```
-Nginx Alpine sunucusu üzerinde statik prodüksiyon çıktısı port `5173` üzerinden sunulacaktır.
+Nginx Alpine sunucusu üzerinde statik prodüksiyon çıktısı port `4000` üzerinden sunulacaktır.
 
 ---
 
