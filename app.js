@@ -916,10 +916,20 @@ async function openNewsDetailModal(newsId) {
   let news = null;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/api/news/${newsId}`);
+    const response = await fetch(`${API_BASE_URL}/api/news/${newsId}?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Pragma': 'no-cache', 'Cache-Control': 'no-cache' }
+    });
     const result = await response.json();
     if (result.success && result.data) {
       news = result.data;
+      // Sync into in-memory appState.allNews so card view stays up to date
+      const targetId = news.id || news._id;
+      const idx = appState.allNews.findIndex(item => (item.id || item._id) === targetId);
+      if (idx !== -1) {
+        appState.allNews[idx] = { ...appState.allNews[idx], ...news };
+        renderNewsGrid();
+      }
     }
   } catch (err) {
     console.error('Fetch news detail error:', err);
@@ -1113,8 +1123,23 @@ function renderNewsDetailModalContent(news) {
 
         if (result.success && result.data) {
           showToast('Gemini AI Analysis Complete', `Generated AI commentary for "${result.data.title}"`, 'success');
-          await loadNewsData();
+          // 1. Immediately update in-memory item in appState.allNews
+          const targetId = result.data.id || result.data._id;
+          const idx = appState.allNews.findIndex(item => (item.id || item._id) === targetId);
+          if (idx !== -1) {
+            appState.allNews[idx] = { ...appState.allNews[idx], ...result.data };
+          }
+          // 2. Re-render modal with the analyzed data
           renderNewsDetailModalContent(result.data);
+          // 3. Re-render grid and update stats
+          renderNewsGrid();
+          updateStats();
+          // 4. Background refresh according to current user context
+          if (appState.authToken) {
+            loadUserFleetNews();
+          } else {
+            loadNewsData();
+          }
         } else {
           showToast('AI Analysis Error', result.message || 'Failed to analyze article with Gemini AI.', 'error');
           singleAiBtns.forEach(b => {
@@ -1148,12 +1173,23 @@ function renderNewsDetailModalContent(news) {
         const result = await response.json();
 
         if (result.success && result.data) {
-          showToast('Deep Scraping Success', 'Full article text successfully extracted and saved.', false);
-          // Refresh global state and modal view
-          await loadNewsData();
+          showToast('Deep Scraping Success', 'Full article text successfully extracted and saved.', 'success');
+          // Update in-memory item immediately
+          const targetId = result.data.id || result.data._id;
+          const idx = appState.allNews.findIndex(item => (item.id || item._id) === targetId);
+          if (idx !== -1) {
+            appState.allNews[idx] = { ...appState.allNews[idx], ...result.data };
+          }
           renderNewsDetailModalContent(result.data);
+          renderNewsGrid();
+          updateStats();
+          if (appState.authToken) {
+            loadUserFleetNews();
+          } else {
+            loadNewsData();
+          }
         } else {
-          showToast('Deep Scraping Error', result.message || 'Could not extract article text.', true);
+          showToast('Deep Scraping Error', result.message || 'Could not extract article text.', 'error');
           singleScrapeBtns.forEach(b => {
             b.disabled = false;
             b.textContent = 'Scrape Full Article Content Now';
@@ -1161,7 +1197,7 @@ function renderNewsDetailModalContent(news) {
         }
       } catch (err) {
         console.error('Single deep scrape error:', err);
-        showToast('Connection Error', 'Failed to connect to deep scraper service.', true);
+        showToast('Connection Error', 'Failed to connect to deep scraper service.', 'error');
         singleScrapeBtns.forEach(b => {
           b.disabled = false;
           b.textContent = 'Scrape Full Article Content Now';
